@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 from .database import engine
 from .models import Base
-from .routers import pdf
 
 # Create database tables
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+    print("✅ Database tables created successfully")
+except Exception as e:
+    print(f"⚠️  Database connection failed: {e}")
+    print("📝 Running in development mode without database")
 
 # Create FastAPI app
 app = FastAPI(
@@ -24,7 +29,8 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(pdf.router)
+from .routers import pdf_db
+app.include_router(pdf_db.router)
 
 @app.get("/")
 async def root():

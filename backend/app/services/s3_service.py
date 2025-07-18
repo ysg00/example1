@@ -17,22 +17,21 @@ class S3Service:
     def generate_presigned_url(self, s3_key: str, filename: str) -> str:
         """Generate a pre-signed URL for uploading a PDF file"""
         try:
-            # Generate unique S3 key
-            file_extension = filename.split('.')[-1] if '.' in filename else 'pdf'
-            unique_key = f"pdfs/{uuid.uuid4()}.{file_extension}"
+            # Use the provided filename as the S3 key
+            s3_key = f"pdfs/{filename}"
             
             # Generate pre-signed URL for PUT operation
             presigned_url = self.s3_client.generate_presigned_url(
                 'put_object',
                 Params={
                     'Bucket': self.bucket_name,
-                    'Key': unique_key,
+                    'Key': s3_key,
                     'ContentType': 'application/pdf'
                 },
                 ExpiresIn=3600  # URL expires in 1 hour
             )
             
-            return presigned_url, unique_key
+            return presigned_url, s3_key
             
         except ClientError as e:
             raise Exception(f"Error generating presigned URL: {str(e)}")

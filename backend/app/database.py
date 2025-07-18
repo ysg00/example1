@@ -7,9 +7,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "mysql://root:password@localhost/rag")
+DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://root:12341234@localhost/pdfs")
 
-engine = create_engine(DATABASE_URL)
+# Explicitly use PyMySQL
+engine = create_engine(
+    DATABASE_URL, 
+    pool_pre_ping=True,
+    connect_args={"charset": "utf8mb4"}
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

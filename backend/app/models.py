@@ -4,20 +4,20 @@ from .database import Base
 import enum
 
 class PDFStatus(enum.Enum):
-    PRE_SIGNED = "PRE_SIGNED"
+    PENDING = "PENDING"
     UPLOADED = "UPLOADED"
-    PARSED = "PARSED"
+    INDEXED = "INDEXED"
 
 class PDF(Base):
     __tablename__ = "pdfs"
     
     id = Column(Integer, primary_key=True, index=True)
-    filename = Column(String, nullable=False)
-    s3_key = Column(String, nullable=False, unique=True)
+    filename = Column(String(255), nullable=False)
+    s3_key = Column(String(500), nullable=False)
     file_size = Column(Integer)
     upload_date = Column(DateTime(timezone=True), server_default=func.now())
-    status = Column(Enum(PDFStatus), default=PDFStatus.PRE_SIGNED)
-    vector_index_id = Column(String, nullable=True)
+    status = Column(Enum(PDFStatus), default=PDFStatus.PENDING)
+    vector_index_id = Column(String(255), nullable=True)
     content_summary = Column(Text, nullable=True)
     
     def __repr__(self):

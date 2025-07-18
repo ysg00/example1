@@ -214,3 +214,39 @@ class OpenSearchService:
             
         except Exception as e:
             raise Exception(f"Error searching similar PDFs: {str(e)}") 
+    
+    def search_similar_content(self, query: str, max_results: int = 3) -> List[Dict[str, Any]]:
+        """Search for similar content and return text with sources for RAG"""
+        try:
+            # Generate embeddings for query
+            query_embeddings = self.model.encode([query], convert_to_numpy=True)[0].tolist()
+            
+            # Search in vector index
+            search_body = {
+                'query': {
+                    'knn': {
+                        'vector': {
+                            'vector': query_embeddings,
+                            'k': max_results
+                        }
+                    }
+                },
+                '_source': ['pdf_id', 'filename', 'text', 'title', 'author']
+            }
+            
+            response = self.client.search(index=self.index_name, body=search_body)
+            
+            results = []
+            for hit in response['hits']['hits']:
+                results.append({
+                    'content': hit['_source']['text'],
+                    'filename': hit['_source']['filename'],
+                    'pdf_id': hit['_source']['pdf_id'],
+                    'score': hit['_score']
+                })
+            
+            return results
+            
+        except Exception as e:
+            print(f"Error searching similar content: {str(e)}")
+            return [] 
