@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+  namespace: chatbot
+data:
+  mysql-database: "pdfs"
+  mysql-user: "user"
+  opensearch-java-opts: "-Xms512m -Xmx512m"
+  opensearch-discovery-type: "single-node"
+  opensearch-security-disabled: "true"
+  opensearch-performance-analyzer: "true"
+  aws-region: "us-east-1"
+  s3-bucket-name: "demo-sample-pdfs"
+  chat-inference-url: "http://localhost:11434" 

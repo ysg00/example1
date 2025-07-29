@@ -5,7 +5,7 @@ from ..services.opensearch_service import OpenSearchService
 
 class ChatService:
     def __init__(self):
-        self.ollama_url = "http://studio.local:11434/api/generate"
+        self.ollama_url = os.getenv("CHAT_INFERENCE_URL", "http://localhost:11434") + "/api/generate"
         self.model_name = "llama3.3"
         self.opensearch_service = OpenSearchService()
         
@@ -15,7 +15,8 @@ class ChatService:
     def _test_ollama_connection(self):
         """Test connection to Ollama endpoint"""
         try:
-            response = requests.get("http://studio.local:11434/api/tags", timeout=5)
+            base_url = os.getenv("CHAT_INFERENCE_URL", "http://localhost:11434")
+            response = requests.get(f"{base_url}/api/tags", timeout=5)
             if response.status_code == 200:
                 print("✅ Ollama connection successful")
                 return True

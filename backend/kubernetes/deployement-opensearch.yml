@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-deployment
+  namespace: chatbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      containers:
+        - env:
+            - name: DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: opensearch-performance-analyzer
+            - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: opensearch-password
+            - name: OPENSEARCH_JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: opensearch-java-opts
+            - name: bootstrap.memory_lock
+              value: "true"
+            - name: discovery.type
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: opensearch-discovery-type
+            - name: plugins.security.disabled
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: opensearch-security-disabled
+          image: opensearchproject/opensearch:latest
+          name: opensearch
+          ports:
+            - containerPort: 9200
+              protocol: TCP
+            - containerPort: 9600
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/share/opensearch/data
+              name: opensearch-data
+      restartPolicy: Always
+      volumes:
+        - name: opensearch-data
+          persistentVolumeClaim:
+            claimName: opensearch-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-dashboard-deployment
+  namespace: chatbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch-dashboard
+  template:
+    metadata:
+      labels:
+        app: opensearch-dashboard
+    spec:
+      containers:
+      - name: opensearch-dashboard
+        image: opensearchproject/opensearch-dashboards:latest
+        ports:
+        - containerPort: 5601
+        env:
+        - name: OPENSEARCH_HOSTS
+          value: "http://opensearch-service:9200"
+        - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
+          value: "true"
+

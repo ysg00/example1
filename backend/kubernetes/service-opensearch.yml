@@ -1,0 +1,33 @@
+# opensearch-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-service
+  namespace: chatbot
+spec:
+  selector:
+    app: opensearch
+  ports:
+  - name: "9200"
+    protocol: TCP
+    port: 9200
+    targetPort: 9200
+  - name: "9600"
+    protocol: TCP
+    port: 9600
+    targetPort: 9600
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-dashboard-service
+  namespace: chatbot
+spec:
+  selector:
+    app: opensearch-dashboard
+  ports:
+  - protocol: TCP
+    port: 5601
+    targetPort: 5601
+  type: NodePort

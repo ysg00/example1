@@ -15,6 +15,7 @@ RUN apt-get update \
         default-mysql-client \
         libmariadb-dev \
         pkg-config \
+        curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
